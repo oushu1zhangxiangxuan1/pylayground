@@ -1,3 +1,5 @@
+# https://blog.csdn.net/mogoweb/article/details/83054861
+
 import tensorflow as tf
 import sys
 from tensorflow.python.platform import gfile
