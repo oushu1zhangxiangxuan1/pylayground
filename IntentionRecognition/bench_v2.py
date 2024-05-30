@@ -21,26 +21,6 @@ frequency_penalty = float(os.getenv('FREQUENCY_PENALTY'))
 presence_penalty = float(os.getenv('PRESENCE_PENALTY'))
 directory = os.getenv('DIRECTORY')
 api_key = os.getenv("PROXY_API_KEY", None)
-template_file_name = os.getenv("TEMPLATE_FILE_NAME", 'prompt')
-intention_parser_class_name = os.getenv("INTENTION_PARSER_CLASS", "IntentionParserFactory")
-
-# 定义工厂类及其子类
-class IntentionParserFactory:
-    @staticmethod
-    def parse_intention_number(response):
-        raise NotImplementedError("This method should be overridden by subclasses")
-
-class JsonIntentionParser(IntentionParserFactory):
-    @staticmethod
-    def parse_intention_number(response):
-        try:
-            response_json = json.loads(response)
-            return response_json.get("intention_num", None)
-        except json.JSONDecodeError:
-            return None
-
-# 动态导入指定的工厂类
-intention_parser_class = globals().get(intention_parser_class_name, IntentionParserFactory)
 
 def load_openai_env():
     api_type = os.getenv("PROXY_API_TYPE", None)
@@ -72,7 +52,8 @@ def get_intention_from_api(prompt):
         frequency_penalty=frequency_penalty, 
         presence_penalty=presence_penalty,
     )
-    return response
+    intention = response.get('choices')[0].get('message')['content'].strip()
+    return intention
 
 def process_files(directory, intention_json, template_file, j2env):
     # 读取intention.json文件
@@ -112,8 +93,7 @@ def process_files(directory, intention_json, template_file, j2env):
             for index, row in tqdm(df.iterrows(), total=lines, desc=f"Processing rows in {filename}", leave=False):
                 # 使用Jinja2模板填充提示文本
                 prompt = template.render(intentions='\n'.join([f"{k}: {v}" for k, v in intentions.items()]), input=row.iloc[0])
-                response = get_intention_from_api(prompt)
-                predicted_intention = intention_parser_class.parse_intention_number(response)
+                predicted_intention = get_intention_from_api(prompt)
 
                 if predicted_intention == num:
                     correct_count += 1
@@ -152,19 +132,10 @@ def process_files(directory, intention_json, template_file, j2env):
 # main函数
 def main():
     intention_json = os.path.join(directory, 'intentions.json')
-    template_file = f'{template_file_name}.jinja2'
+    template_file = 'prompt.jinja2'
     j2env = Environment(loader=FileSystemLoader(searchpath=directory))
     process_files(directory, intention_json, template_file, j2env)
 
 # 运行main函数
 if __name__ == "__main__":
     main()
-
-##
-# json example
-# {
-#     "intention_num":xxx,
-#     "chat_response":"",
-#     "sql":"",
-#     "attribution_request":object
-# }

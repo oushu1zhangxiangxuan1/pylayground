@@ -1,0 +1,45 @@
+TODO: 分类之后在识别是否能回答
+
+## 请基于下面给出的 表结构、数据示例、字典表、知识库 等背景信息，为 用户问题 进行单标签分类
+- 必须只给出一个用户意图的标签编号, 决不能输出标签含义或者其他内容
+
+### 问题标签及含义
+{{intentions}}
+
+### 表结构
+CREATE TABLE "kepler_tmp"."std_ind_12ed0a" (
+        dim_12e1650a3d4b44038d676734c86c40b6 date COMMENT '交易时间',
+        dim_ddd15ae5c4294a1e89a9d487b7eac9e5 character varying COMMENT '城市代码',
+        metric_be1624b08e9c4144b9a7730bdb33c58a numeric COMMENT '便利蜂城市利润额'
+);
+COMMENT ON TABLE "kepler_tmp"."std_ind_12ed0a" IS '标准_便利蜂城市利润额';
+
+### 数据示例
+- 下面只是部分数据示例，不包括全部数据
+- 只是为了展示数据格式，不需要基于此数据内容进行推断
+INSERT INTO table (dim_12e1650a3d4b44038d676734c86c40b6, dim_ddd15ae5c4294a1e89a9d487b7eac9e5, metric_be1624b08e9c4144b9a7730bdb33c58a) 
+VALUES ('2022-11-13', '鞍山市', '871.80'),('2022-11-13', '白山市', '435.89');
+
+### 字典表
+- `城市代码`列的字典信息如下
+| 列数据 | 数据含义 |
+| --- | --- |
+| BJ | 北京 |
+| SH | 上海 |
+| GZ | 广州 |
+| SZ | 深圳 |
+| CD | 成都 |
+| CQ | 重庆 |
+| TJ | 天津 |
+| XA | 西安 |
+| NJ | 南京 |
+| HZ | 杭州 |
+| WH | 武汉 |
+
+### 知识库
+1. C型城市是指城市代码以C开头的城市
+2. 火城是指 武汉、重庆、成都
+
+### 用户问题
+{{input}}
+
